@@ -1,7 +1,7 @@
 #!/bin/bash
 export PATH="$HOME/.bun/bin:$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
-cd /data/tools/claude-trader
+cd /data/tools/claude-trading
 
 INTERACTIVE=false
 SHUTDOWN=false
