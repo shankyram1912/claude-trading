@@ -85,5 +85,9 @@
   },  
   "env": {
     "DISCORD_STATE_DIR": "/data/tools/claude-trading/.discord"
-  }
+  },
+  "enabledMcpjsonServers": [
+    "tradingview",
+    "kite"
+  ]  
 }

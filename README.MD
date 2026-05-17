@@ -120,3 +120,107 @@ If you need a fresh token:
 ```
 
 Update the token value there manually. This ensures the credential stays tied to the project and doesn't bleed into other Claude Code sessions on the same machine.
+
+---
+
+## TradingView MCP Server
+
+[tradesdontlie/tradingview-mcp](https://github.com/tradesdontlie/tradingview-mcp) is an MCP server that connects Claude Code to your locally running TradingView Desktop app via Chrome DevTools Protocol (CDP). It gives Claude eyes and hands on your charts — Pine Script development, chart navigation, indicator reading, screenshots, and more.
+
+> ⚠️ Not affiliated with TradingView Inc. Requires a valid TradingView subscription. All data stays local — no connection to TradingView's servers.
+
+### Step 1 — Install TradingView Desktop (Local, No Root)
+
+TradingView Desktop is installed locally by extracting the `.deb` package — no system-wide install required.
+
+```bash
+# Decompress
+gunzip tradingview_amd64.deb.gz
+
+# Extract into local directory
+mkdir -p /data/tools/tradingview
+dpkg-deb -x tradingview_amd64.deb /data/tools/tradingview/TradingView
+```
+
+Add to PATH in `~/.bashrc`:
+
+```bash
+# Trading View
+export PATH="$PATH:/data/tools/tradingview/opt/TradingView"
+```
+
+```bash
+echo '# Trading View' >> ~/.bashrc
+echo 'export PATH="$PATH:/data/tools/tradingview/opt/TradingView"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+### Step 2 — Handle Chrome Sandbox Error
+
+On first launch you may see:
+
+```
+FATAL: chrome-sandbox is not configured correctly...
+You need to make sure that chrome-sandbox is owned by root and has mode 4755.
+```
+
+**Fix the sandbox (recommended, requires sudo):**
+
+```bash
+sudo chown root:root /data/tools/tradingview/opt/TradingView/chrome-sandbox
+sudo chmod 4755 /data/tools/tradingview/opt/TradingView/chrome-sandbox
+```
+
+### Step 3 — Clone and Install the MCP Server
+
+```bash
+git clone https://github.com/tradesdontlie/tradingview-mcp.git /data/tools/tradingview/git/tradingview-mcp
+cd /data/tools/tradingview/git/tradingview-mcp
+npm install
+
+# To enable claude to take screenshots of Trading View screen
+mkdir /data/tools/tradingview/git/tradingview-mcp/screenshots
+```
+
+### Step 4 — Launch TradingView with Debug Port
+
+The MCP server connects to TradingView via CDP on port 9222. TradingView must be running with the debug flag:
+
+```bash
+./scripts/launch_tv_debug_linux.sh
+```
+
+Or manually:
+
+```bash
+tradingview --remote-debugging-port=9222
+```
+
+Or use the MCP tool (auto-detects your install):
+
+```bash
+"Use tv_launch to start TradingView in debug mode"
+```
+
+### Step 5 — Add to Claude Code MCP Config
+
+Add to your project-level `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "tradingview": {
+      "command": "node",
+      "args": ["/data/tools/tradingview/git/tradingview-mcp/src/server.js"]
+    }
+  }
+}
+```
+
+### Step 6 — Verify Connection
+
+Inside Claude Code ask:
+
+```
+Use tv_health_check to verify TradingView is connected
+```
