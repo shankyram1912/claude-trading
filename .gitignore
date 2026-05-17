@@ -126,4 +126,4 @@ desktop.ini
 .project
 .classpath
 .settings/
-*.sublime-workspace
+*.sublime-workspacedependencies/*.tar.gz
